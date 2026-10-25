@@ -1,8 +1,8 @@
 # utility01
 
 Always-on Debian 13 LXC container on Proxmox (`172.16.10.50`), CT **100**, hostname **utility01**,
-IP **172.16.10.37** (DHCP — reserve it). 1 core, 512 MB RAM, 4 GB on `local-lvm`, starts on boot.
-SSH: `ssh root@172.16.10.37` (Mac key installed).
+static IP **172.16.10.252/24**, gateway 172.16.10.254. 1 core, 512 MB RAM, 4 GB on `local-lvm`, starts on boot.
+SSH: `ssh root@172.16.10.252` (Mac key installed).
 
 ## What runs here
 
@@ -27,25 +27,25 @@ systemd never starts a run while the previous one is still going, so runs can't 
 ## Everyday commands
 
 ```bash
-ssh root@172.16.10.37 systemctl list-timers '*watcher*'
-ssh root@172.16.10.37 journalctl -u drop-watcher -n 50
-ssh root@172.16.10.37 journalctl -u nc-abc-watcher -n 50
+ssh root@172.16.10.252 systemctl list-timers '*watcher*'
+ssh root@172.16.10.252 journalctl -u drop-watcher -n 50
+ssh root@172.16.10.252 journalctl -u nc-abc-watcher -n 50
 ```
 
 Send a test alert with the real settings:
 
 ```bash
-ssh root@172.16.10.37 systemd-run --wait --pipe --quiet -p User=watcher -p EnvironmentFile=/etc/watchers/drop_watcher.env /usr/bin/python3 /opt/watchers/drop_watcher.py --test
+ssh root@172.16.10.252 systemd-run --wait --pipe --quiet -p User=watcher -p EnvironmentFile=/etc/watchers/drop_watcher.env /usr/bin/python3 /opt/watchers/drop_watcher.py --test
 ```
 
 ## Deploying a change
 
 1. Edit the file here, commit.
-2. `scp watchers/drop_watcher.py root@172.16.10.37:/opt/watchers/` (or the unit into `/etc/systemd/system/` then `systemctl daemon-reload`).
+2. `scp watchers/drop_watcher.py root@172.16.10.252:/opt/watchers/` (or the unit into `/etc/systemd/system/` then `systemctl daemon-reload`).
 
 ## Rebuilding from scratch
 
-1. `pct create 100 local:vztmpl/debian-13-standard_13.6-1_amd64.tar.zst --hostname utility01 --cores 1 --memory 512 --swap 512 --rootfs local-lvm:4 --net0 name=eth0,bridge=vmbr0,ip=dhcp --unprivileged 1 --features nesting=1 --onboot 1 --ssh-public-keys ~/.ssh/id_ed25519.pub`
+1. `pct create 100 local:vztmpl/debian-13-standard_13.6-1_amd64.tar.zst --hostname utility01 --cores 1 --memory 512 --swap 512 --rootfs local-lvm:4 --net0 name=eth0,bridge=vmbr0,ip=172.16.10.252/24,gw=172.16.10.254 --nameserver 1.1.1.1 --unprivileged 1 --features nesting=1 --onboot 1 --ssh-public-keys ~/.ssh/id_ed25519.pub`
 2. `apt-get install -y python3-requests python3-bs4 curl unattended-upgrades`
 3. `useradd --system --no-create-home --shell /usr/sbin/nologin watcher`
 4. Copy `watchers/` → `/opt/watchers/`, `bin/` → `/usr/local/bin/`, `systemd/` → `/etc/systemd/system/`.
