@@ -1,0 +1,13 @@
+[Unit]
+Description=NC ABC boards drop/raffle watcher (one pass over all boards)
+Wants=network-online.target
+After=network-online.target
+OnFailure=notify-failure@%n.service
+
+[Service]
+Type=oneshot
+User=watcher
+EnvironmentFile=/etc/watchers/nc_abc_watcher.env
+StateDirectory=nc-abc-watcher
+ExecStart=/usr/bin/python3 /opt/watchers/nc_abc_watcher.py
+TimeoutStartSec=30min

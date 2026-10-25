@@ -1,0 +1,13 @@
+[Unit]
+Description=Durham ABC drop watcher (one check)
+Wants=network-online.target
+After=network-online.target
+OnFailure=notify-failure@%n.service
+
+[Service]
+Type=oneshot
+User=watcher
+EnvironmentFile=/etc/watchers/drop_watcher.env
+StateDirectory=drop-watcher
+ExecStart=/usr/bin/python3 /opt/watchers/drop_watcher.py
+TimeoutStartSec=55

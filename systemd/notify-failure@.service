@@ -1,0 +1,6 @@
+[Unit]
+Description=Send OLD_CLAUDY phone alert that %i failed
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/notify-failure.sh %i

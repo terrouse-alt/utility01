@@ -1,0 +1,3 @@
+*.env
+*_state.json
+.DS_Store

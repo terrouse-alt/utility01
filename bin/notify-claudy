@@ -1,0 +1,10 @@
+#!/bin/sh
+# Send a phone notification to the OLD_CLAUDY ntfy topic.
+# Usage: notify-claudy "Title" "Message" [priority: min|low|default|high|urgent] [tags]
+TOPIC="${CLAUDY_TOPIC:-OLD_CLAUDY}"
+curl -fsS --max-time 15 \
+  -H "Title: ${1:-utility01}" \
+  -H "Priority: ${3:-default}" \
+  -H "Tags: ${4:-robot}" \
+  --data-binary "${2:-(no message)}" \
+  "https://ntfy.sh/$TOPIC" >/dev/null
